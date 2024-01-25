@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.net.SyslogAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
@@ -20,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 public class LoggerManager {
     private static final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
     private static final String DEFAULT_PATTERN = "[%-5level] %date [%thread] %logger{10} [%file:%line] %msg%n";
+    private static final String SYSLOG_PATTERN = "[%-5level] [%thread] %logger{10} [%file:%line] %msg";
 
     static {
         loggerContext.reset();
@@ -49,6 +51,14 @@ public class LoggerManager {
         log.setAdditive(false);
         log.setLevel(level);
         log.addAppender(consoleAppender);
+    }
+
+    public static void addSyslogLogger(String packageName, Level level, String host, int port, String facility, String pattern) {
+        SyslogAppender syslogAppender = getSyslogAppender(host, port, facility, pattern);
+        Logger log = loggerContext.getLogger(packageName);
+        log.setAdditive(false);
+        log.setLevel(level);
+        log.addAppender(syslogAppender);
     }
 
     public static void addFileLogger(String packageName, Level level, String pattern, String filePattern, String maxFileSize, String totalSize, int maxHistory) {
@@ -93,6 +103,18 @@ public class LoggerManager {
         consoleAppender.setEncoder(encoder);
         consoleAppender.start();
         return consoleAppender;
+    }
+
+    private static SyslogAppender getSyslogAppender(String host, int port, String facility, String pattern) {
+        SyslogAppender syslogAppender = new SyslogAppender();
+        syslogAppender.setContext(loggerContext);
+        syslogAppender.setName(ConsoleAppender.class.getSimpleName());
+        syslogAppender.setSyslogHost(host);
+        syslogAppender.setPort(port);
+        syslogAppender.setFacility(facility);
+        syslogAppender.setSuffixPattern(pattern != null ? pattern : SYSLOG_PATTERN);
+        syslogAppender.start();
+        return syslogAppender;
     }
 
     private static OutputStreamAppender<ILoggingEvent> getOutputStreamAppender(OutputStream outputStream, String pattern) {

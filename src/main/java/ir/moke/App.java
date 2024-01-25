@@ -22,8 +22,11 @@ public class App {
         wroteLog();
         System.out.println("-------------- Remove File Logger  -------------------------");
         LoggerManager.detachLoggerAppender("ir.moke", RollingFileAppender.class);
-        wroteLog();
         System.out.println("--------------- After remove  ------------------------");
+        wroteLog();
+
+        System.out.println("--------------- Add Syslog  ------------------------");
+        LoggerManager.addSyslogLogger("ir.moke", Level.ALL, "localhost", 514, "USER", null);
         wroteLog();
     }
 
