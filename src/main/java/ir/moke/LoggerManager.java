@@ -8,6 +8,7 @@ import ch.qos.logback.classic.net.SyslogAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.rolling.RollingFileAppender;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoggerManager {
     private static final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -25,6 +28,12 @@ public class LoggerManager {
 
     static {
         loggerContext.reset();
+    }
+
+    public static void registerConverter() {
+        Map<String, String> ruleRegistry = new HashMap<>();
+        ruleRegistry.put("highlighter", "ir.moke.LogHighlighter");
+        loggerContext.putObject(CoreConstants.PATTERN_RULE_REGISTRY, ruleRegistry);
     }
 
     public static <T> void detachLoggerAppender(String name, Class<? extends Appender> clazz) {

@@ -15,6 +15,7 @@ public class App {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
+        LoggerManager.registerConverter();
         LoggerManager.addConsoleLogger("ir.moke", Level.ALL, null);
         wroteLog();
         System.out.println("-------------- Add File Logger  -------------------------");
